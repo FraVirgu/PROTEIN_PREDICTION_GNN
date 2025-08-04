@@ -15,7 +15,7 @@ RANDOM_SEED = 42
 # --------------------------
 # LOAD GRAPH FROM TXT FILE
 # --------------------------
-def load_graph(uniprot_id):
+def load_graph(uniprot_id, max_features = 512):
     path = os.path.join(GRAPH_DIR, f"{uniprot_id}.txt")
     if not os.path.isfile(path):
         return None, None
@@ -31,7 +31,7 @@ def load_graph(uniprot_id):
 
     # Parse node embeddings
     feat_lines = lines[adj_end + 2:]
-    features = np.array([[float(x) for x in line.split()] for line in feat_lines])
+    features = np.array([[float(x) for x in line.split()[:max_features]] for line in feat_lines])
 
     return adj, features
 
