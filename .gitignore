@@ -1,2 +1,3 @@
 /.venv
-/DATASET
+/PPGCN/DATASET
+/alphafold_pdbs
