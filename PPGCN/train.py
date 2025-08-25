@@ -1,3 +1,5 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 import jax
 from models import (
     GCNN, 
@@ -13,9 +15,9 @@ import random
 
 # Hyperparameters
 num_features = train_set[0][3].shape[1]
-layers_size = {"num_features": num_features, "hidden_dim": 32, "output_dim": 1}
-num_epochs = 100
-learning_rate = 1e-3
+layers_size = {"num_features": num_features, "hidden_dim": 32, "output_dim": 4}
+num_epochs = 300
+learning_rate = 1e-4
 ########################################
 
 # Initialize GCNN model
@@ -43,7 +45,7 @@ history_train.append(loss_jit(params, a_adj, a_feat, b_adj, b_feat,label))
 print(f"Training on {n_samples} samples with {num_features} features per node...")
 
 # Training loop
-batch_size = 3
+batch_size = 10
 
 for epoch in tqdm(range(num_epochs)):
     epoch_loss = 0.0
@@ -55,7 +57,8 @@ for epoch in tqdm(range(num_epochs)):
     for sample in batch:
         a_adj, a_feat = sample[2], sample[3]
         b_adj, b_feat = sample[4], sample[5]
-        label = sample[6]
+        label = float(sample[6])  # Ensure label is float
+
 
         grads = grad_jit(params, a_adj, a_feat, b_adj, b_feat, label)
         params = jax.tree_util.tree_map(lambda p, g: p - learning_rate * g, params, grads)

@@ -13,7 +13,7 @@ from Bio.PDB import PDBParser
 # --------------------------
 POS_FILE = "PPGCN/DATASET/Real-Datasets/H. sapien/H. sapien_Positive_Real.xlsx"
 NEG_FILE = "PPGCN/DATASET/Real-Datasets/H. sapien/H. sapien_Negative_Real.xlsx"
-MAX_PAIRS = 50
+MAX_PAIRS = 500
 UNIPROT_MIN_LEN = 10
 SAVE_DIR = "PPGCN/DATASET/graphs"
 
