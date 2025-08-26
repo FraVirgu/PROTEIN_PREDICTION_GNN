@@ -11,7 +11,7 @@ PAIRS_FILE = os.path.join(GRAPH_DIR, "A_positive_pairs.txt")
 NEG_PAIRS_FILE = os.path.join(GRAPH_DIR, "A_negative_pairs.txt")
 TEST_SIZE = 0.2
 RANDOM_SEED = 42
-MAX_FEATURES = 128  # Max features per node
+MAX_FEATURES = 1024  # Max features per node
 
 
 # --------------------------
@@ -19,6 +19,16 @@ MAX_FEATURES = 128  # Max features per node
 # --------------------------
 
 MAX_NUM_NODES = 0
+
+def downsample_vector(features, out_len=64):
+    """
+    Downsample a 1D vector into out_len values by averaging blocks.
+    Example: len(features)=1024, out_len=32 → returns shape (32,)
+    """
+    n = features.shape[0]
+    block_size = n // out_len
+    trimmed = features[:block_size * out_len]   # drop extra if not divisible
+    return trimmed.reshape(out_len, block_size).mean(axis=1)
 
 def load_graph(uniprot_id, max_features=MAX_FEATURES):
     path = os.path.join(GRAPH_DIR, f"{uniprot_id}.txt")
@@ -39,6 +49,9 @@ def load_graph(uniprot_id, max_features=MAX_FEATURES):
     features = np.array(
         [[float(x) for x in line.split()[:max_features]] for line in feat_lines]
     )
+    for vector in features:
+        downsample_vector(vector)
+        
     global MAX_NUM_NODES
     if(features.shape[0] > MAX_NUM_NODES):
         MAX_NUM_NODES = features.shape[0]
