@@ -21,7 +21,7 @@ NEG_PAIRS_FILE = os.path.join(GRAPH_DIR, "A_negative_pairs.txt")
 TEST_SIZE = 0.1
 RANDOM_SEED = 42
 MAX_FEATURES = 1024     # Max features per node to read
-DOWNSAMPLE_TO = 64      # Final feature length per node (set None to disable)
+DOWNSAMPLE_TO = 512      # Final feature length per node (set None to disable)
 USE_PARALLEL_PADDING = False  # True to also pad in parallel (trades memory for speed)
 
 # --------------------------
