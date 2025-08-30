@@ -14,15 +14,7 @@ from models import (
     model_forward,              # functional forward (unused directly here but kept for parity)
     binary_cross_entropy_loss,  # per-sample BCE loss
 )
-import data_prepare as ds
-
-# Load dataset (prebuilt if imported, else build here)
-if getattr(ds, "TRAIN_SET", None) is None or getattr(ds, "TEST_SET", None) is None:
-    train_set, test_set, N = ds.main()
-else:
-    train_set, test_set, N = ds.TRAIN_SET, ds.TEST_SET, ds.MAX_NUM_NODES_COMPUTED
-
-
+import data_creation as dc   # ⬅️ import directly
 def cosine_decay(step: int, total_steps: int, lr0: float, lr_min: float = 0.0) -> float:
     """Cosine LR schedule from lr0 → lr_min over total_steps."""
     t = min(step, total_steps)
@@ -42,20 +34,19 @@ def main():
     # ----------------------------------
     # Environment
     # ----------------------------------
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    # os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
     # ----------------------------------
     # Data
     # ----------------------------------
-    if getattr(ds, "TRAIN_SET", None) is None or getattr(ds, "TEST_SET", None) is None:
-        train_set, test_set, N = ds.main()
-    else:
-        train_set, test_set, N = ds.TRAIN_SET, ds.TEST_SET, ds.MAX_NUM_NODES_COMPUTED
+    # build datasets here (NOT at import)
+    train_set, valid_set, test_set, N = dc.get_datasets(max_train=5000, max_valid=2000, max_test=2000, n_jobs=8)
 
     # ----------------------------------
     # Hyperparameters
     # ----------------------------------
     num_features = train_set[0][3].shape[1]
+    
     layers_size = {"num_features": num_features, "hidden_dim": 128, "output_dim": 516}
 
     num_epochs = 100
@@ -164,11 +155,20 @@ def main():
     # ----------------------------------
     # Save params
     # ----------------------------------
-    os.makedirs("PPGCN/PARAMETER", exist_ok=True)
-    with open("PPGCN/PARAMETER/gcnn_params.pkl", "wb") as f:
-        f.write(flax.serialization.to_bytes(params))
+    save_dir = "RDKIT/PARAMETER"
+    os.makedirs(save_dir, exist_ok=True)
 
-    print("✅ Model parameters saved to gcnn_params.pkl")
+    config = {
+        "num_features": layers_size["num_features"],
+        "hidden_dim":   layers_size["hidden_dim"],
+        "output_dim":   layers_size["output_dim"],
+    }
+
+    payload = {"config": config, "params": params}
+    with open(os.path.join(save_dir, "gcnn_params.pkl"), "wb") as f:
+        f.write(flax.serialization.to_bytes(payload))
+
+    print("✅ Saved params + config to RDKIT/PARAMETER/gcnn_params.pkl")
 
 
 if __name__ == "__main__":
