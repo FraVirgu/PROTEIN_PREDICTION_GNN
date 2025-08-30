@@ -1,3 +1,5 @@
 /.venv
 /PPGCN/DATASET/graphs
+/PPGCN/DATASET/H_graphs
 /alphafold_pdbs
+/OLD
